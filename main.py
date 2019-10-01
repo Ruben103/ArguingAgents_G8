@@ -1,5 +1,4 @@
 import random
-import tensorflow as tf
 
 TRAIN_ITER = 10
 MAX_ARG_LENGTH = 10
@@ -27,7 +26,7 @@ def classify_m(d):  # implement later with a CNN
     return (a, 1 - a)
 
 
-def test_recursive(data_input_data_target, counter_channel, test_log, arg_length):
+def test_recursive(data_input_data_target, counter_channel, test_log, last_argument, arg_length):
     (data_input, data_target) = data_input_data_target
 
     if arg_length <= 0:
@@ -43,7 +42,11 @@ def test_recursive(data_input_data_target, counter_channel, test_log, arg_length
 
     if out_0 > out_1:
         print("\t\t argument FOR 0")
-
+        
+        if last_argument == 0:
+            print("\t\t\tsame argument twice")
+            return (out_0, out_1)
+            
         d_0 = [data_input, out_0]  # add data_input and out_0
         out_c0 = classify_c0(d_0)
 
@@ -55,9 +58,13 @@ def test_recursive(data_input_data_target, counter_channel, test_log, arg_length
             return (out_0, out_1)
         else:
             print("\t\t\targument AGAINST 0")
-            return test_recursive((data_input, data_target), out_c0, test_log, arg_length)
+            return test_recursive((data_input, data_target), out_c0, test_log, 0, arg_length)
     else:
         print("\t\t argument FOR 1")
+        
+        if last_argument == 1:
+            print("\t\t\tsame argument twice")
+            return (out_0, out_1)
 
         d_1 = [data_input, out_1]  # add data_input and out_1
         out_c1 = classify_c1(d_1)
@@ -72,7 +79,7 @@ def test_recursive(data_input_data_target, counter_channel, test_log, arg_length
         else:
             print("\t\t\targument AGAINST 1")
 
-            return test_recursive((data_input, data_target), (1 - out_c1), test_log, arg_length)
+            return test_recursive((data_input, data_target), (1 - out_c1), test_log, 1, arg_length)
             # here we use (1-out_c1) so that a low counter_channel will be evidence against 1, and a high counter channel will be evidence against 0
 
 
@@ -90,8 +97,10 @@ def test(data):
         print("\tStart argument...\n")
 
         # Run the main classifier
-        (out_0, out_1) = test_recursive((data[0][i], data[1][i]), 0.5, test_log, MAX_ARG_LENGTH)
-        # 0.5 represents no counter argument made (yet)
+        counter_channel = 0.5  #0.5 represents no counter argument made (yet)
+        last_argument = 0.5    #0.5 represents no last argument 
+        
+        (out_0, out_1) = test_recursive((data[0][i], data[1][i]), counter_channel, test_log, last_argument, MAX_ARG_LENGTH)
 
     return test_log
 
