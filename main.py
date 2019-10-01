@@ -1,9 +1,9 @@
 import random
 import numpy as np
+from unpack_data import *
 
-TRAIN_ITER = 10
+TRAIN_ITER = 2
 MAX_ARG_LENGTH = 10
-DATA_SIZE = 10  # set this dynamically later
 IMAGE_DIM = (28,28)
 
 class Data:         #these are separated in order to later check to make sure the data is balanced
@@ -116,7 +116,7 @@ def test(inputs, targets):
 
     test_log = Test_Log()  # Here we will log all arguments made during the test run (for the purpose of training later)
 
-    for i in range(0, DATA_SIZE):
+    for i in range(0, len(targets)):
         print("\tStart argument...\n")
 
         # Run the main classifier
@@ -129,12 +129,13 @@ def test(inputs, targets):
 
 
 def main():
-    train_data_in = [np.zeros(IMAGE_DIM) for i in range(0, DATA_SIZE)]
-    train_data_target = [j % 2 for j in range(0, DATA_SIZE)]
+    
+    (train_in, train_target, test_in, test_target) = load_data()
+
 
     for i in range(0, TRAIN_ITER):
         # Run the ensemble, and record all arguments made
-        test_log = test(train_data_in, train_data_target)
+        test_log = test(train_in, train_target)
         # the test_log contains all arguments made during testing
 
         # Train the classifiers on the new data
