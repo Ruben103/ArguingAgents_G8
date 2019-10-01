@@ -1,8 +1,10 @@
 import random
+import numpy as np
 
 TRAIN_ITER = 10
 MAX_ARG_LENGTH = 10
-DATA_SIZE = 100  # set this dynamically later
+DATA_SIZE = 10  # set this dynamically later
+IMAGE_DIM = (28,28)
 
 class Data:         #these are separated in order to later check to make sure the data is balanced
     target_0 = []
@@ -38,9 +40,11 @@ def test_recursive(data_point, counter_channel, test_log, last_argument, arg_len
     else:
         arg_length -= 1
 
-    d = [data_input, counter_channel]  # combine image with counter channel
+    counter_matrix = np.full(IMAGE_DIM, counter_channel)
 
-    if #data_target is 1:
+    d = np.dstack([data_input, counter_matrix]) # combine image with counter channel
+
+    if data_target == 1:
         test_log.data_m.target_1.append(d)
     else:
         test_log.data_m.target_0.append(d)
@@ -54,9 +58,11 @@ def test_recursive(data_point, counter_channel, test_log, last_argument, arg_len
             print("\t\t\tsame argument twice")
             return (out_0, out_1)
             
-        d_0 = [data_input, out_0]  # add data_input and out_0
+        out_matrix = np.full(IMAGE_DIM, out_0)
+            
+        d_0 = np.dstack([data_input, out_matrix])  # add data_input and out_0
 
-        if #data_target is 1 (M is wrong):
+        if data_target == 1: #M is wrong
             test_log.data_m.target_1.append(d_0) #counter
         else:
             test_log.data_m.target_0.append(d_0) #no counter
@@ -75,10 +81,12 @@ def test_recursive(data_point, counter_channel, test_log, last_argument, arg_len
         if last_argument == 1:
             print("\t\t\tsame argument twice")
             return (out_0, out_1)
+            
+        out_matrix = np.full(IMAGE_DIM, out_1)
 
-        d_1 = [data_input, out_1]  # add data_input and out_1
+        d_1 = np.dstack([data_input, out_matrix])  # add data_input and out_1
 
-        if #data_target is 1 (M is right):
+        if data_target == 1: #M is right
             test_log.data_m.target_0.append(d_1) #no counter
         else:
             test_log.data_m.target_1.append(d_1) #counter
@@ -103,7 +111,7 @@ def train(test_log):
     
 
 
-def test(data):
+def test(inputs, targets):
     print("Let's test!\n")
 
     test_log = Test_Log()  # Here we will log all arguments made during the test run (for the purpose of training later)
@@ -115,25 +123,25 @@ def test(data):
         counter_channel = 0.5  #0.5 represents no counter argument made (yet)
         last_argument = 0.5    #0.5 represents no last argument 
         
-        (out_0, out_1) = test_recursive((data[0][i], data[1][i]), counter_channel, test_log, last_argument, MAX_ARG_LENGTH)
+        (out_0, out_1) = test_recursive((inputs[i], targets[i]), counter_channel, test_log, last_argument, MAX_ARG_LENGTH)
 
     return test_log
 
 
 def main():
-    train_data = [[i for i in range(0, DATA_SIZE)], [j % 2 for j in range(0, DATA_SIZE)]]
-    test_data = [[i for i in range(0, DATA_SIZE)], [j % 2 for j in range(0, DATA_SIZE)]]
+    train_data_in = [np.zeros(IMAGE_DIM) for i in range(0, DATA_SIZE)]
+    train_data_target = [j % 2 for j in range(0, DATA_SIZE)]
 
     for i in range(0, TRAIN_ITER):
         # Run the ensemble, and record all arguments made
-        test_log = test(train_data)
+        test_log = test(train_data_in, train_data_target)
         # the test_log contains all arguments made during testing
 
         # Train the classifiers on the new data
         train(test_log)
 
     # Run the ensemble on test data
-    test(test_data)
+    #test(test_data)
 
 
 if __name__ == "__main__":
