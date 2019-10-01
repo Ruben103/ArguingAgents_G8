@@ -2,13 +2,16 @@ import random
 
 TRAIN_ITER = 10
 MAX_ARG_LENGTH = 10
-DATA_SIZE = 10  # set this dynamically later
+DATA_SIZE = 100  # set this dynamically later
 
+class Data:         #these are separated in order to later check to make sure the data is balanced
+    target_0 = []
+    target_1 = []
 
 class Test_Log:
-    data_m = []
-    data_c0 = []
-    data_c1 = []
+    data_m = Data()
+    data_c0 = Data()
+    data_c1 = Data()
 
 
 def classify_c0(d):  # implement later with a CNN
@@ -26,8 +29,8 @@ def classify_m(d):  # implement later with a CNN
     return (a, 1 - a)
 
 
-def test_recursive(data_input_data_target, counter_channel, test_log, last_argument, arg_length):
-    (data_input, data_target) = data_input_data_target
+def test_recursive(data_point, counter_channel, test_log, last_argument, arg_length):
+    (data_input, data_target) = data_point
 
     if arg_length <= 0:
         return (0.5, 0.5)  # If more that MAX arguments have been made,
@@ -36,9 +39,13 @@ def test_recursive(data_input_data_target, counter_channel, test_log, last_argum
         arg_length -= 1
 
     d = [data_input, counter_channel]  # combine image with counter channel
-    (out_0, out_1) = classify_m(d)
 
-    #########add d and target to test_log (data_m)
+    if #data_target is 1:
+        test_log.data_m.target_1.append(d)
+    else:
+        test_log.data_m.target_0.append(d)
+        
+    (out_0, out_1) = classify_m(d)
 
     if out_0 > out_1:
         print("\t\t argument FOR 0")
@@ -48,10 +55,13 @@ def test_recursive(data_input_data_target, counter_channel, test_log, last_argum
             return (out_0, out_1)
             
         d_0 = [data_input, out_0]  # add data_input and out_0
-        out_c0 = classify_c0(d_0)
 
-        #########add d_0 and target to test_log (data_c0)
-        #########here, target is 0 if M was correct, 1 if incorrect
+        if #data_target is 1 (M is wrong):
+            test_log.data_m.target_1.append(d_0) #counter
+        else:
+            test_log.data_m.target_0.append(d_0) #no counter
+            
+        out_c0 = classify_c0(d_0)
 
         if out_c0 < 0.5:
             print("\t\t\tno counter argument")
@@ -67,25 +77,30 @@ def test_recursive(data_input_data_target, counter_channel, test_log, last_argum
             return (out_0, out_1)
 
         d_1 = [data_input, out_1]  # add data_input and out_1
-        out_c1 = classify_c1(d_1)
 
-        #########add d_1 and target to test_log (data_c1)
-        #########here, target is 0 if M was correct, 1 if incorrect
+        if #data_target is 1 (M is right):
+            test_log.data_m.target_0.append(d_1) #no counter
+        else:
+            test_log.data_m.target_1.append(d_1) #counter
+            
+        out_c1 = classify_c1(d_1)
 
         if out_c1 < 0.5:
             print("\t\t\tno counter argument")
-
             return (out_0, out_1)
         else:
             print("\t\t\targument AGAINST 1")
-
             return test_recursive((data_input, data_target), (1 - out_c1), test_log, 1, arg_length)
             # here we use (1-out_c1) so that a low counter_channel will be evidence against 1, and a high counter channel will be evidence against 0
 
 
 def train(test_log):
+    
+    #make sure that the data used for training is even (same number for each class)
+    
     # Include this later
     print("Let's train!\n")
+    
 
 
 def test(data):
