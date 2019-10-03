@@ -74,7 +74,7 @@ class Test_Log:
                 print("Error adding data")
                 quit()
         elif model == "c0":
-            if target == label_0:
+            if target == label_0:       #if the target is 0, M is right 
                 self.data_c0.target_0.append(d)
             elif target == label_1:
                 self.data_c0.target_1.append(d)
@@ -82,9 +82,9 @@ class Test_Log:
                 print("Error adding data")
                 quit()
         elif model == "c1":
-            if target == label_0:
+            if target == label_1:       #if the target is 1, M is right
                 self.data_c1.target_0.append(d)
-            elif target == label_1:
+            elif target == label_0:
                 self.data_c1.target_1.append(d)
             else:
                 print("Error adding data")

@@ -41,8 +41,7 @@ class Ensemble:
                 
             out_matrix = np.full(IMAGE_DIM, out[0])
             d_0 = np.dstack([data_input, out_matrix])     # add data_input and out_0
-            # TODO: Fix the data that is added to train counter arg gen
-            test_log.add_data("c0", data_target, d_0)     #target is 1 if M is wrong (when the class is 1)
+            test_log.add_data("c0", data_target, d_0)
             out_c0 = self.c0.classify(d_0)[0]
 
             if out_c0 < 0.5:
@@ -72,8 +71,7 @@ class Ensemble:
                 
             out_matrix = np.full(IMAGE_DIM, out[1])
             d_1 = np.dstack([data_input, out_matrix])       # add data_input and out_1
-            # TODO: Fix the data that is added to train counter arg gen
-            test_log.add_data("c1", label_1, d_1)     #target is 1 if M is wrong (when the class is 0)
+            test_log.add_data("c1", data_target, d_1)
             out_c1 = self.c1.classify(d_1)
 
             if out_c1 < 0.5:
