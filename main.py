@@ -90,10 +90,8 @@ class Ensemble:
                 return self.test_recursive((data_input, data_target), (1 - out_c1), test_log, 1, arg_length)
                 # here we use (1-out_c1) so that a low counter_channel will be evidence against 1, and a high counter channel will be evidence against 0
 
-    def test(self, inputs, targets):
+    def test(self, inputs, targets, test_log):
         print("Let's test!\n")
-
-        test_log = Test_Log()  # Here we will log all arguments made during the test run (for the purpose of training later)
 
         n_correct = 0
         n_wrong = 0
@@ -136,11 +134,17 @@ class Ensemble:
 def main():
     (train_in, train_target, test_in, test_target) = load_data()
     
+    print("Normalizing Data")
+    train_in = image_normalize(train_in)   #make sure the values are between 0 and 1 (and not 0 and 255)
+    test_in = image_normalize(test_in)
+    
     ensemble = Ensemble()
+    
+    test_log = Test_Log()  # Here we will log all arguments made during the test run (for the purpose of training later)
 
     for i in range(0, TRAIN_ITER):
         # Run the ensemble, and record all arguments made
-        test_log = ensemble.test(train_in, train_target)
+        ensemble.test(train_in, train_target, test_log)
         # the test_log contains all arguments made during testing
 
         # Train the classifiers on the new data

@@ -19,14 +19,14 @@ class Data:         #these are separated in order to later check to make sure th
     def get_combined_data(self, m_type):
         if m_type == "main":
             combined_data = self.target_0.copy()
-            combined_targets = [[0.5, 0.5] for i in range(0, len(self.target_0))]
+            combined_targets = [[1, 0] for i in range(0, len(self.target_0))]
             combined_data.extend(self.target_1.copy())
-            combined_targets.extend([[0.5, 0.5] for i in range(0, len(self.target_1))])
+            combined_targets.extend([[0, 1] for i in range(0, len(self.target_1))])
         else:
             combined_data = self.target_0.copy()
-            combined_targets = [0.5 for i in range(0, len(self.target_0))]
+            combined_targets = [0 for i in range(0, len(self.target_0))]
             combined_data.extend(self.target_1.copy())
-            combined_targets.extend([0.5 for i in range(0, len(self.target_1))])
+            combined_targets.extend([1 for i in range(0, len(self.target_1))])
         return(np.asarray(combined_data), np.asarray(combined_targets))
     
     def balance_data(self):
@@ -135,3 +135,8 @@ def load_data():
     print(f"Number of test images:\n 0: {test_ctr_0}\t 1: {test_ctr_1}")
     # TODO: Add a try catch to check if data is always returned with expected shapes and sizes
     return filtered_train_images, filtered_train_labels, filtered_test_images, filtered_test_labels
+    
+def image_normalize(data):
+    for i in range(0, len(data)):
+        data[i] = np.true_divide(data[i], 255)
+    return data

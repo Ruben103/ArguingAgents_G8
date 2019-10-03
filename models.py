@@ -20,12 +20,12 @@ class Classifier:
         
         if m_type == "main":
             model.add(keras.layers.Dense(2, activation='softmax'))
-            #sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0, nesterov=True)
-            model.compile(optimizer="adam", loss='binary_crossentropy', metrics=['accuracy'])
+            sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0, nesterov=True)
+            model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
         else:
             model.add(keras.layers.Dense(1, activation='sigmoid'))
-            #sgd = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0, nesterov=True)
-            model.compile(optimizer="adam", loss='mean_squared_error', metrics=['accuracy'])
+            sgd = optimizers.SGD(lr=0.00001, decay=1e-6, momentum=0, nesterov=True)
+            model.compile(optimizer=sgd, loss='binary_crossentropy', metrics=['accuracy'])
         
         self.model = model
     
