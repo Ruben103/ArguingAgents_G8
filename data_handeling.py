@@ -19,14 +19,14 @@ class Data:         #these are separated in order to later check to make sure th
     def get_combined_data(self, m_type):
         if m_type == "main":
             combined_data = self.target_0.copy()
-            combined_targets = [[1, 0] for i in range(0, len(self.target_0))]
+            combined_targets = [[0.5, 0.5] for i in range(0, len(self.target_0))]
             combined_data.extend(self.target_1.copy())
-            combined_targets.extend([[0, 1] for i in range(0, len(self.target_1))])
+            combined_targets.extend([[0.5, 0.5] for i in range(0, len(self.target_1))])
         else:
             combined_data = self.target_0.copy()
-            combined_targets = [0 for i in range(0, len(self.target_0))]
+            combined_targets = [0.5 for i in range(0, len(self.target_0))]
             combined_data.extend(self.target_1.copy())
-            combined_targets.extend([1 for i in range(0, len(self.target_1))])
+            combined_targets.extend([0.5 for i in range(0, len(self.target_1))])
         return(np.asarray(combined_data), np.asarray(combined_targets))
     
     def balance_data(self):

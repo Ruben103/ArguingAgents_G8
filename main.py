@@ -3,8 +3,9 @@ import numpy as np
 from data_handeling import *
 from models import *
 
-TRAIN_ITER = 4
+TRAIN_ITER = 50
 MAX_ARG_LENGTH = 10
+IMAGE_DIM = (28,28)
 
 class Ensemble:
     m = Classifier("main")
@@ -14,10 +15,11 @@ class Ensemble:
     def test_recursive(self, data_point, counter_channel, test_log, last_argument, arg_length):
         
         (data_input, data_target) = data_point
+        
+        print("Target: ", data_target)
 
         if arg_length <= 0:
-            return (0.5, 0.5)  # If more that MAX arguments have been made,
-            # then the ensemble failed to converge to a solution
+            return (0.5, 0.5)  # If more that MAX arguments have been made, then the ensemble failed to converge to a solution
         else:
             arg_length -= 1
 
@@ -96,11 +98,8 @@ class Ensemble:
         n_correct = 0
         n_wrong = 0
         
-        for i in range(0, 4):#len(targets)):
+        for i in range(0, 10):#len(targets)):
             print("\tStart argument...\n")
-            
-            if i % 1000 == 0:
-                print("Iteration: ", i)
 
             # Run the main classifier
             counter_channel = 0.5  #0.5 represents no counter argument made (yet)
