@@ -2,6 +2,8 @@ import tensorflow as tf
 import random
 import numpy as np
 
+label_0 = 3
+label_1 = 8
 class Data:         #these are separated in order to later check to make sure the data is balanced
     
     def __init__(self):
@@ -33,6 +35,8 @@ class Data:         #these are separated in order to later check to make sure th
         print("Balancing: ", len(self.target_0), " : ", len(self.target_1))
         if len(self.target_0) == 0 or len(self.target_1) == 0:
             print("Error, cannot balance data")
+            self.target_0 = []
+            self.target_1 = []
             return
         
         n = max(len(self.target_0), len(self.target_1))
@@ -62,25 +66,25 @@ class Test_Log:
     
     def add_data(self, model, target, d):
         if model == "m":
-            if target == 0:
+            if target == label_0:
                 self.data_m.target_0.append(d)
-            elif target == 1:
+            elif target == label_1:
                 self.data_m.target_1.append(d)
             else:
                 print("Error adding data")
                 quit()
         elif model == "c0":
-            if target == 0:
+            if target == label_0:
                 self.data_c0.target_0.append(d)
-            elif target == 1:
+            elif target == label_1:
                 self.data_c0.target_1.append(d)
             else:
                 print("Error adding data")
                 quit()
         elif model == "c1":
-            if target == 0:
+            if target == label_0:
                 self.data_c1.target_0.append(d)
-            elif target == 1:
+            elif target == label_1:
                 self.data_c1.target_1.append(d)
             else:
                 print("Error adding data")
@@ -113,26 +117,26 @@ def load_data():
     train_ctr_1 = 0
     test_ctr_1 = 0
     for train_idx in range(0, len(train_labels)):
-        if (train_labels[train_idx] == 0):
+        if (train_labels[train_idx] == label_0):
             filtered_train_images.append(train_images[train_idx])
             filtered_train_labels.append(train_labels[train_idx])
             train_ctr_0 += 1
-        if (train_labels[train_idx] == 1):
+        if (train_labels[train_idx] == label_1):
             filtered_train_images.append(train_images[train_idx])
             filtered_train_labels.append(train_labels[train_idx])
             train_ctr_1 += 1
-    print(f"Number of train images:\n 0: {train_ctr_0}\t 1: {train_ctr_1}")
+    print(f"Number of train images:\n {label_0}: {train_ctr_0}\t {label_1}: {train_ctr_1}")
 
     for test_idx in range(0, len(test_labels)):
-        if (test_labels[test_idx] == 0):
+        if (test_labels[test_idx] == label_0):
             filtered_test_images.append(test_images[test_idx])
             filtered_test_labels.append(test_labels[test_idx])
             test_ctr_0 += 1
-        if (test_labels[test_idx] == 1):
+        if (test_labels[test_idx] == label_1):
             filtered_test_images.append(test_images[test_idx])
             filtered_test_labels.append(test_labels[test_idx])
             test_ctr_1 += 1
-    print(f"Number of test images:\n 0: {test_ctr_0}\t 1: {test_ctr_1}")
+    print(f"Number of test images:\n {label_0}: {test_ctr_0}\t {label_1}: {test_ctr_1}")
     # TODO: Add a try catch to check if data is always returned with expected shapes and sizes
     return filtered_train_images, filtered_train_labels, filtered_test_images, filtered_test_labels
     

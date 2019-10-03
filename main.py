@@ -3,7 +3,7 @@ import numpy as np
 from data_handeling import *
 from models import *
 
-TRAIN_ITER = 50
+TRAIN_ITER = 5
 MAX_ARG_LENGTH = 10
 IMAGE_DIM = (28,28)
 
@@ -29,65 +29,67 @@ class Ensemble:
         out = self.m.classify(d)[0]
         
         if out[0] > out[1]:
-            if data_target == 0:
+            if data_target == label_0:
                 test_log.data_m.n_correct += 1
             else:
                 test_log.data_m.n_incorrect += 1
-            print("\t\t argument FOR 0", "(", data_target == 0, ")")
+            print(f"\t\t argument FOR {label_0}", "(", data_target == label_0, ")")
             
-            if last_argument == 0:
+            if last_argument == label_0:
                 print("\t\t\tsame argument twice")
                 return (out[0], out[1])
                 
             out_matrix = np.full(IMAGE_DIM, out[0])
             d_0 = np.dstack([data_input, out_matrix])     # add data_input and out_0
+            # TODO: Fix the data that is added to train counter arg gen
             test_log.add_data("c0", data_target, d_0)     #target is 1 if M is wrong (when the class is 1)
             out_c0 = self.c0.classify(d_0)[0]
 
             if out_c0 < 0.5:
-                if data_target == 0:
+                if data_target == label_0:
                     test_log.data_c0.n_correct += 1
                 else:
                     test_log.data_c0.n_incorrect += 1
-                print("\t\t\tno counter argument", "(", data_target == 0, ")")
+                print("\t\t\tno counter argument", "(", data_target == label_0, ")")
                 return (out[0], out[1])
             else:
-                if data_target == 1:
+                if data_target == label_1:
                     test_log.data_c0.n_correct += 1
                 else:
                     test_log.data_c0.n_incorrect += 1
-                print("\t\t\targument AGAINST 0", "(", data_target == 1, ")")
-                return self.test_recursive((data_input, data_target), out_c0, test_log, 0, arg_length)
+                print(f"\t\t\targument AGAINST {label_0}", "(", data_target == label_1, ")")
+                return self.test_recursive((data_input, data_target), out_c0, test_log, label_0, arg_length)
         else:
-            if data_target == 1:
+            if data_target == label_1:
                 test_log.data_m.n_correct += 1
             else:
                 test_log.data_m.n_incorrect += 1
-            print("\t\t argument FOR 1", "(", data_target == 1, ")")
+            print(f"\t\t argument FOR {label_1}", "(", data_target == label_1, ")")
             
-            if last_argument == 1:
+            if last_argument == label_1:
                 print("\t\t\tsame argument twice")
                 return (out[0], out[1])
                 
             out_matrix = np.full(IMAGE_DIM, out[1])
             d_1 = np.dstack([data_input, out_matrix])       # add data_input and out_1
-            test_log.add_data("c1", 1-data_target, d_1)     #target is 1 if M is wrong (when the class is 0)
+            # TODO: Fix the data that is added to train counter arg gen
+            test_log.add_data("c1", label_1, d_1)     #target is 1 if M is wrong (when the class is 0)
             out_c1 = self.c1.classify(d_1)
 
             if out_c1 < 0.5:
-                if data_target == 1:
+                if data_target == label_1:
                     test_log.data_c1.n_correct += 1
                 else:
                     test_log.data_c1.n_incorrect += 1
-                print("\t\t\tno counter argument", "(", data_target == 1, ")")
+                print("\t\t\tno counter argument", "(", data_target == label_1, ")")
                 return (out[0], out[1])
             else:
-                if data_target == 0:
+                if data_target == label_0:
                     test_log.data_c1.n_correct += 1
                 else:
                     test_log.data_c1.n_incorrect += 1
-                print("\t\t\targument AGAINST 1", "(", data_target == 0, ")")
-                return self.test_recursive((data_input, data_target), (1 - out_c1), test_log, 1, arg_length)
+                print(f"\t\t\targument AGAINST {label_1}", "(", data_target == label_0, ")")
+                return self.test_recursive((data_input, data_target), (1 - out_c1), test_log, label_1, arg_length)
                 # here we use (1-out_c1) so that a low counter_channel will be evidence against 1, and a high counter channel will be evidence against 0
 
     def test(self, inputs, targets, test_log):
@@ -105,9 +107,9 @@ class Ensemble:
             
             (out_0, out_1) = self.test_recursive((inputs[i], targets[i]), counter_channel, test_log, last_argument, MAX_ARG_LENGTH)
             
-            if out_0 > out_1 and targets[i] == 0:
+            if out_0 > out_1 and targets[i] == label_0:
                 n_correct += 1
-            elif out_1 > out_0 and targets[i] == 1:
+            elif out_1 > out_0 and targets[i] == label_1:
                 n_correct += 1
             else:
                 n_wrong += 1
@@ -151,7 +153,7 @@ def main():
         ensemble.train(test_log)
 
     # Run the ensemble on test data
-    ensemble.test(test_in, test_target)
+    ensemble.test(test_in, test_target, test_log)
 
 
 if __name__ == "__main__":
