@@ -31,7 +31,7 @@ class Classifier:
     
     def classify(self, d):
         out = self.model.predict(np.reshape(d, (1, 28, 28, 2)))
-        print("Output for ", self.m_type, ": ", out)
+        #print("Output for ", self.m_type, ": ", out)
         return out
         
     def train_model(self, data):

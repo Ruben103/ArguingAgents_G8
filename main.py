@@ -16,7 +16,7 @@ class Ensemble:
         
         (data_input, data_target) = data_point
         
-        print("Target: ", data_target)
+        #print("Target: ", data_target)
 
         if arg_length <= 0:
             return (0.5, 0.5)  # If more that MAX arguments have been made, then the ensemble failed to converge to a solution
@@ -33,7 +33,7 @@ class Ensemble:
                 test_log.data_m.n_correct += 1
             else:
                 test_log.data_m.n_incorrect += 1
-            print(f"\t\t argument FOR {label_0}", "(", data_target == label_0, ")")
+            print(f"\t\t argument FOR {label_0}", "(", data_target == label_0, ") -- Counter channel: ", counter_channel)
             
             if last_argument == label_0:
                 print("\t\t\tsame argument twice")
@@ -42,7 +42,7 @@ class Ensemble:
             out_matrix = np.full(IMAGE_DIM, out[0])
             d_0 = np.dstack([data_input, out_matrix])     # add data_input and out_0
             test_log.add_data("c0", data_target, d_0)
-            out_c0 = self.c0.classify(d_0)[0]
+            out_c0 = self.c0.classify(d_0)[0][0]
 
             if out_c0 < 0.5:
                 if data_target == label_0:
@@ -63,7 +63,7 @@ class Ensemble:
                 test_log.data_m.n_correct += 1
             else:
                 test_log.data_m.n_incorrect += 1
-            print(f"\t\t argument FOR {label_1}", "(", data_target == label_1, ")")
+            print(f"\t\t argument FOR {label_1}", "(", data_target == label_1, ") -- Counter channel: ", counter_channel)
             
             if last_argument == label_1:
                 print("\t\t\tsame argument twice")
@@ -72,7 +72,7 @@ class Ensemble:
             out_matrix = np.full(IMAGE_DIM, out[1])
             d_1 = np.dstack([data_input, out_matrix])       # add data_input and out_1
             test_log.add_data("c1", data_target, d_1)
-            out_c1 = self.c1.classify(d_1)
+            out_c1 = self.c1.classify(d_1)[0][0]
 
             if out_c1 < 0.5:
                 if data_target == label_1:
@@ -96,7 +96,7 @@ class Ensemble:
         n_correct = 0
         n_wrong = 0
         
-        for i in range(0, 10):#len(targets)):
+        for i in range(0, len(targets)):
             print("\tStart argument...\n")
 
             # Run the main classifier
@@ -134,6 +134,13 @@ class Ensemble:
 def main():
     (train_in, train_target, test_in, test_target) = load_data()
     
+    print("Grab only part of the data")
+    train_in = train_in[:10]
+    train_target = train_target[:10]
+    test_in = test_in[:100]
+    test_target = test_target[:100]    
+    
+    
     print("Normalizing Data")
     train_in = image_normalize(train_in)   #make sure the values are between 0 and 1 (and not 0 and 255)
     test_in = image_normalize(test_in)
@@ -151,6 +158,7 @@ def main():
         ensemble.train(test_log)
 
     # Run the ensemble on test data
+    print("Testing the test data")
     ensemble.test(test_in, test_target, test_log)
 
 
