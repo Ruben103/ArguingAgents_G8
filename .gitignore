@@ -5,3 +5,5 @@ data
 
 # List of File Extensions to ignore
 *.json
+__pycache__
+.idea
