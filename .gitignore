@@ -1,0 +1,9 @@
+# List of directories to ignore
+data
+.DS_Store
+.vscode
+
+# List of File Extensions to ignore
+*.json
+__pycache__
+.idea
