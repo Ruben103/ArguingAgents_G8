@@ -5,7 +5,7 @@
 We attempt to augment a standard feed-forward classification neural network with two counter-argument classifiers C_0 and C_1 that serve the purpose of providing a counter arguments against the main classifier M using image classification.
 
 The system architecture is as follows:
-![alt text](https://github.com/Ruben103/ArguingAgents_G8/tree/master/assets/model_arch.png "Model Architecture")
+![Alt text](./assets/model_arch.png?raw=True "Model Architecture")
 
 ## Run Instructions
 
