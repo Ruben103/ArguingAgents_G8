@@ -3,7 +3,7 @@ import numpy as np
 from data_handeling import *
 from models import *
 
-TRAIN_ITER = 5
+TRAIN_ITER = 10
 MAX_ARG_LENGTH = 10
 IMAGE_DIM = (28,28)
 
@@ -13,10 +13,16 @@ class Ensemble:
     c1 = Classifier("counter")
 
     def test_recursive(self, data_point, counter_channel, test_log, last_argument, arg_length):
+
+        revaluation = 0
         
         (data_input, data_target) = data_point
         
         #print("Target: ", data_target)
+
+        if arg_length != MAX_ARG_LENGTH:
+            print("\t\t\t REVALUATION")
+            revaluation = 1
 
         if arg_length <= 0:
             return (0.5, 0.5)  # If more that MAX arguments have been made, then the ensemble failed to converge to a solution
@@ -27,12 +33,29 @@ class Ensemble:
         d = np.dstack([data_input, counter_matrix]) # combine image with counter channel
         test_log.add_data("m", data_target, d)      
         out = self.m.classify(d)[0]
-        
-        if out[0] > out[1]:
+
+        if out[0] > out[1]:         # M thinks the image is of type 0
             if data_target == label_0:
                 test_log.data_m.n_correct += 1
             else:
                 test_log.data_m.n_incorrect += 1
+
+            #TODO: build this function through the logic of Experimental Design.
+            # if not revaluation:
+            #     if data_target == label_0:
+            #         test_log.data_m.n_correct += 1
+            #     else:
+            #         test_log.data_m.n_incorrect += 1
+            # else:   #TODO:  The following block of code should rollback the previous entries of test_log.data_m
+            #     if last_argument == label_0: # M still thinks its label_0, but was prompted by C0
+            #         if data_target == label_0: # C0 was WRONG
+            #             test_log.data_m.n_correct += 0.5
+            #             test_log.data_m.n_incorrect += 0.5
+            #         else: # data_target is label_1, meaning C0 was RIGHT but M is WRONG.
+            #             test_log.data_m.n_incorrect += 1
+
+
+
             print(f"\t\t argument FOR {label_0}", "(", data_target == label_0, ") -- Counter channel: ", counter_channel)
             
             if last_argument == label_0:
@@ -40,25 +63,25 @@ class Ensemble:
                 return (out[0], out[1])
                 
             out_matrix = np.full(IMAGE_DIM, out[0])
-            d_0 = np.dstack([data_input, out_matrix])     # add data_input and out_0
+            d_0 = np.dstack([data_input, out_matrix])     # What does this actually do ? Why dstack ?
             test_log.add_data("c0", data_target, d_0)
-            out_c0 = self.c0.classify(d_0)[0][0]
+            out_c0 = self.c0.classify(d_0)[0][0]        # This number if > 0.5, argument for label_1 ?
 
-            if out_c0 < 0.5:
+            if out_c0 > 0.5:    # This says c0 does not agree with main. Counter argument is made.
                 if data_target == label_0:
-                    test_log.data_c0.n_correct += 1
-                else:
                     test_log.data_c0.n_incorrect += 1
-                print("\t\t\tno counter argument", "(", data_target == label_0, ")")
-                return (out[0], out[1])
-            else:
-                if data_target == label_1:
-                    test_log.data_c0.n_correct += 1
                 else:
-                    test_log.data_c0.n_incorrect += 1
+                    test_log.data_c0.n_correct += 1
                 print(f"\t\t\targument AGAINST {label_0}", "(", data_target == label_1, ")")
                 return self.test_recursive((data_input, data_target), out_c0, test_log, label_0, arg_length)
-        else:
+            else:               # C0 does not make a counter argument.
+                if data_target == label_1:
+                    test_log.data_c0.n_incorrect += 1
+                else:
+                    test_log.data_c0.n_correct += 1
+                print("\t\t\tno counter argument", "(", data_target == label_0, ")")
+                return (out[0], out[1])
+        else:                       # M thinks the image of type 1
             if data_target == label_1:
                 test_log.data_m.n_correct += 1
             else:
@@ -74,20 +97,21 @@ class Ensemble:
             test_log.add_data("c1", data_target, d_1)
             out_c1 = self.c1.classify(d_1)[0][0]
 
-            if out_c1 < 0.5:
+            if out_c1 > 0.5:    # This says c1 does not agree with main. Counter argument is made
                 if data_target == label_1:
-                    test_log.data_c1.n_correct += 1
-                else:
                     test_log.data_c1.n_incorrect += 1
-                print("\t\t\tno counter argument", "(", data_target == label_1, ")")
-                return (out[0], out[1])
-            else:
-                if data_target == label_0:
-                    test_log.data_c1.n_correct += 1
                 else:
-                    test_log.data_c1.n_incorrect += 1
+                    test_log.data_c1.n_correct += 1
                 print(f"\t\t\targument AGAINST {label_1}", "(", data_target == label_0, ")")
                 return self.test_recursive((data_input, data_target), (1 - out_c1), test_log, label_1, arg_length)
+            else:
+                if data_target == label_0:
+                    test_log.data_c1.n_incorrect += 1
+                else:
+                    test_log.data_c1.n_correct += 1
+                print("\t\t\tno counter argument", "(", data_target == label_1, ")")
+                return (out[0], out[1])
+
                 # here we use (1-out_c1) so that a low counter_channel will be evidence against 1, and a high counter channel will be evidence against 0
 
     def test(self, inputs, targets, test_log):
@@ -129,7 +153,7 @@ class Ensemble:
         self.c0.train_model(test_log.data_c0)
         self.c1.train_model(test_log.data_c1)    
         
-        test_log.clear_log()  
+        test_log.clear_log()
 
 def main():
     (train_in, train_target, test_in, test_target) = load_data()
@@ -139,12 +163,11 @@ def main():
     train_target = train_target[:10]
     test_in = test_in[:100]
     test_target = test_target[:100]    
-    
-    
+
     print("Normalizing Data")
     train_in = image_normalize(train_in)   #make sure the values are between 0 and 1 (and not 0 and 255)
     test_in = image_normalize(test_in)
-    
+
     ensemble = Ensemble()
     
     test_log = Test_Log()  # Here we will log all arguments made during the test run (for the purpose of training later)

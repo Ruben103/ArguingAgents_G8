@@ -4,6 +4,7 @@ import numpy as np
 
 label_0 = 3
 label_1 = 8
+
 class Data:         #these are separated in order to later check to make sure the data is balanced
     
     def __init__(self):

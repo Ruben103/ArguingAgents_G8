@@ -16,14 +16,14 @@ class Classifier:
         
         model = keras.Sequential()
         model.add(keras.layers.Flatten(input_shape=(28, 28, 2)))
-        model.add(keras.layers.Dense(128, activation='relu'))
+        model.add(keras.layers.Dense(128, activation='relu', use_bias=True))
         
         if m_type == "main":
-            model.add(keras.layers.Dense(2, activation='softmax'))
+            model.add(keras.layers.Dense(2, activation='softmax', use_bias=True))
             #sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0, nesterov=True)
             model.compile(optimizer="adam", loss='categorical_crossentropy', metrics=['accuracy'])
         else:
-            model.add(keras.layers.Dense(1, activation='sigmoid'))
+            model.add(keras.layers.Dense(1, activation='sigmoid', use_bias=True))
             #sgd = optimizers.SGD(lr=0.00001, decay=1e-6, momentum=0, nesterov=True)
             model.compile(optimizer="adam", loss='binary_crossentropy', metrics=['accuracy'])
         
