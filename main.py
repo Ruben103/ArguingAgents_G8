@@ -12,7 +12,7 @@ class Ensemble:
     c0 = Classifier("counter")
     c1 = Classifier("counter")
 
-    def test_recursive(self, data_point, counter_channel, test_log, last_argument, arg_length):
+    def test_recursive(self, data_point, counter_channel, test_log, last_argument, arg_length, last_arg_length):
 
         revaluation = 0
         
@@ -24,8 +24,8 @@ class Ensemble:
             print("\t\t\t REVALUATION")
             revaluation = 1
 
-        if arg_length <= 0:
-            return (0.5, 0.5)  # If more that MAX arguments have been made, then the ensemble failed to converge to a solution
+        if arg_length <= 0: # If more than MAX arguments have been made, 'infinite' cycle. Return
+            return (0.5, 0.5)
         else:
             arg_length -= 1
 
@@ -35,26 +35,26 @@ class Ensemble:
         out = self.m.classify(d)[0]
 
         if out[0] > out[1]:         # M thinks the image is of type 0
-            if data_target == label_0:
-                test_log.data_m.n_correct += 1
+            if not revaluation:
+                if data_target == label_0:
+                    test_log.data_m.n_correct += 1
+                else:
+                    test_log.data_m.n_incorrect += 1
             else:
-                test_log.data_m.n_incorrect += 1
-
-            #TODO: build this function through the logic of Experimental Design.
-            # if not revaluation:
-            #     if data_target == label_0:
-            #         test_log.data_m.n_correct += 1
-            #     else:
-            #         test_log.data_m.n_incorrect += 1
-            # else:   #TODO:  The following block of code should rollback the previous entries of test_log.data_m
-            #     if last_argument == label_0: # M still thinks its label_0, but was prompted by C0
-            #         if data_target == label_0: # C0 was WRONG
-            #             test_log.data_m.n_correct += 0.5
-            #             test_log.data_m.n_incorrect += 0.5
-            #         else: # data_target is label_1, meaning C0 was RIGHT but M is WRONG.
-            #             test_log.data_m.n_incorrect += 1
-
-
+                test_log.data_ens.rollback()
+                if last_argument == label_0:
+                    if data_target == label_0: # C-agent prompted M, M was correct, C0 was wrong
+                        test_log.data_ens.n_correct += 1
+                        # test_log.data_ens.n_correct += 0.5 ,# test_log.data_ens.n_incorrect += 0.5
+                    else: # C0 was RIGHT but M is WRONG. M didn't accept counter.
+                        test_log.data_ens.n_incorrect += 1
+                        # test_log.data_ens.n_correct += 0.5 ,# test_log.data_ens.n_incorrect += 0.5
+                else: # M changed its mind.
+                    if data_target == label_0: # M changed its mind correctly
+                        test_log.data_ens.n_correct += 1
+                    else:
+                        test_log.data_ens.n_incorrect += 1
+                test_log.data_ens.set_previous()
 
             print(f"\t\t argument FOR {label_0}", "(", data_target == label_0, ") -- Counter channel: ", counter_channel)
             
@@ -73,7 +73,7 @@ class Ensemble:
                 else:
                     test_log.data_c0.n_correct += 1
                 print(f"\t\t\targument AGAINST {label_0}", "(", data_target == label_1, ")")
-                return self.test_recursive((data_input, data_target), out_c0, test_log, label_0, arg_length)
+                return self.test_recursive((data_input, data_target), out_c0, test_log, label_0, arg_length, arg_length)
             else:               # C0 does not make a counter argument.
                 if data_target == label_1:
                     test_log.data_c0.n_incorrect += 1
@@ -82,10 +82,28 @@ class Ensemble:
                 print("\t\t\tno counter argument", "(", data_target == label_0, ")")
                 return (out[0], out[1])
         else:                       # M thinks the image of type 1
-            if data_target == label_1:
-                test_log.data_m.n_correct += 1
+            if not revaluation:
+                if data_target == label_1:
+                    test_log.data_m.n_correct += 1
+                else:
+                    test_log.data_m.n_incorrect += 1
             else:
-                test_log.data_m.n_incorrect += 1
+                test_log.data_ens.rollback()
+                if last_argument == label_1:
+                    if data_target == label_1: # C-agent prompted M, M was correct, C-agent was wrong
+                        test_log.data_ens.n_correct += 1 # 0.5
+                        # test_log.data_ens.n_incorrect += 0.5
+                    else: #M was wrong. C-agent was correct. M is still wrong upon reval
+                        test_log.data_ens.n_incorrect += 1
+                        # test_log.data_ens.n_correct += 0.5
+                        # test_log.data_ens.n_incorrect += 0.5
+                else: #last_argument was not label_1, M changed its mind.
+                    if data_target == label_1: # M Changed its mind correctly
+                        test_log.data_ens.n_correct += 1
+                    else: # He better should not have.
+                        test_log.data_ens.n_incorrect += 1
+                test_log.data_ens.set_previous()
+
             print(f"\t\t argument FOR {label_1}", "(", data_target == label_1, ") -- Counter channel: ", counter_channel)
             
             if last_argument == label_1:
@@ -103,7 +121,7 @@ class Ensemble:
                 else:
                     test_log.data_c1.n_correct += 1
                 print(f"\t\t\targument AGAINST {label_1}", "(", data_target == label_0, ")")
-                return self.test_recursive((data_input, data_target), (1 - out_c1), test_log, label_1, arg_length)
+                return self.test_recursive((data_input, data_target), (1 - out_c1), test_log, label_1, arg_length, arg_length)
             else:
                 if data_target == label_0:
                     test_log.data_c1.n_incorrect += 1
@@ -117,32 +135,46 @@ class Ensemble:
     def test(self, inputs, targets, test_log):
         print("Let's test!\n")
 
+        # performance measures
         n_correct = 0
         n_wrong = 0
-        
-        for i in range(0, len(targets)):
-            print("\tStart argument...\n")
+        n_better = 0
 
-            # Run the main classifier
-            counter_channel = 0.5  #0.5 represents no counter argument made (yet)
-            last_argument = 0.5    #0.5 represents no last argument 
-            
-            (out_0, out_1) = self.test_recursive((inputs[i], targets[i]), counter_channel, test_log, last_argument, MAX_ARG_LENGTH)
-            
-            if out_0 > out_1 and targets[i] == label_0:
-                n_correct += 1
-            elif out_1 > out_0 and targets[i] == label_1:
-                n_correct += 1
-            else:
-                n_wrong += 1
-                
-        print("Accuracy Ensemble: ", n_correct/(n_correct + n_wrong))
-        print("Accuracy Main: ", test_log.data_m.get_accuracy())
-        print("Accuracy C0: ", test_log.data_c0.get_accuracy())
-        print("Accuracy C1: ", test_log.data_c1.get_accuracy())
-        
-        test_log.reset_accuracies()
+        # Change this parameter to measure overall performance over a longer interval
+        n_iterations = 1
 
+        for i in range(n_iterations):
+
+            for i in range(0, len(targets)):
+                print("\tStart argument...\n")
+
+                # Run the main classifier
+                counter_channel = 0.5  #0.5 represents no counter argument made (yet)
+                last_argument = 0.5    #0.5 represents no last argument
+
+                (out_0, out_1) = self.test_recursive((inputs[i], targets[i]), counter_channel, test_log, last_argument, MAX_ARG_LENGTH, MAX_ARG_LENGTH)
+
+                if out_0 > out_1 and targets[i] == label_0:
+                    n_correct += 1
+                elif out_1 > out_0 and targets[i] == label_1:
+                    n_correct += 1
+                else:
+                    n_wrong += 1
+
+
+            print("Accuracy Ensemble: ", n_correct/(n_correct + n_wrong))
+            print("Revaluation Acccuracy: ", test_log.data_ens.get_accuracy())
+            print("Accuracy Main: ", test_log.data_m.get_accuracy())
+            print("Accuracy C0: ", test_log.data_c0.get_accuracy())
+            print("Accuracy C1: ", test_log.data_c1.get_accuracy())
+
+            print("THERE IS A TENDENCY THAT THE ENSEMBLE PERFORMS EQUALLY WELL TO MAIN \nTHIS MEANS MAIN NEVER CHANGES ITS MIND")
+
+            if n_correct/(n_correct + n_wrong) >= test_log.data_m.get_accuracy():
+                n_better += 1
+            test_log.reset_accuracies()
+
+        print("PERFORMANCE: ", n_better, n_iterations)
         return test_log
 
     def train(self, test_log):

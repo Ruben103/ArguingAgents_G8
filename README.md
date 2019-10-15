@@ -1,18 +1,33 @@
-<!-- TODO: ADD PROBLEM STATEMENT AND DATASET DESCRIPTION -->
 # Arguing Agents
 
 ## Problem Statement
 
-## Dataset Description
+We attempt to augment a standard feed-forward classification neural network with two counter-argument classifiers C_0 and C_1 that serve the purpose of providing a counter arguments against the main classifier M using image classification.
 
-### Project Files
+The system architecture is as follows:
+![alt text](https://github.com/Ruben103/ArguingAgents_G8/tree/master/assets/model_arch.png "Model Architecture")
 
-1 simple_classifier.py
-Simple Convolutional Neural Network for a binary classification problem. The network is trained on the **INSERT DATASET NAME** Dataset.
+## Run Instructions
 
-Network Graph:
+The program has been implemented in Python3. The program requires the latest versions of the following packages to run:
+* Tensorflow (2.0.0)
+* Keras (2.3.0)
+* Numpy
 
-2 arguing_classifier.py
-Arguing agent update to simple CNN for the binary classification problem.
+Command to install the packages:
+```pip3 install --no-cache-dir tensorflow keras numpy```
 
-Network Graph:
+Command to run the program:
+
+```python3 main.py```
+
+
+### References
+
+*   Trevor JM Bench-Capon and Paul E Dunne.   Argumentation in artificial intelligence.Artificialintelligence, 171(10-15):619–641, 2007.
+
+* Oana Cocarascu and Francesca Toni.   Combining deep learning and argumentative reasoning forthe  analysis  of  social  media  textual  content  using  small  data  sets.Computational  Linguistics,44(4):833–858, 2018.
+
+* Artur SD’Avila Garcez, Dov M Gabbay, and Luis C Lamb. Value-based argumentation frameworksas neural-symbolic learning systems.Journal of Logic and Computation, 15(6):1041–1058, 2005.
+
+* Yann LeCun, Corinna Cortes, and CJ Burges.  Mnist handwritten digit database.AT&T Labs

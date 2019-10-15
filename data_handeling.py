@@ -10,14 +10,24 @@ class Data:         #these are separated in order to later check to make sure th
     def __init__(self):
         self.target_0 = []
         self.target_1 = []
-        self.n_correct = 0
-        self.n_incorrect = 0
+        self.n_correct = 0 # 8
+        self.n_incorrect = 0 # 9
+        self.prev_correct = 0 # 8 8
+        self.prev_incorrect = 0 # 9 9
     
     def get_accuracy(self):
         if self.n_correct + self.n_incorrect > 0:
             return self.n_correct / (self.n_correct + self.n_incorrect)
         else:
             return None
+
+    def set_previous(self):
+        self.prev_correct = self.n_correct
+        self.prev_incorrect = self.n_incorrect
+
+    def rollback(self):
+        self.n_correct = self.prev_correct
+        self.n_incorrect = self.prev_incorrect
     
     def get_combined_data(self, m_type):
         if m_type == "main":
@@ -61,9 +71,10 @@ class Data:         #these are separated in order to later check to make sure th
 class Test_Log:
     
     def __init__(self):
-        self.data_m = Data()
+        self.data_m  = Data()
         self.data_c0 = Data()
         self.data_c1 = Data()
+        self.data_ens= Data()
     
     def add_data(self, model, target, d):
         if model == "m":
@@ -98,6 +109,7 @@ class Test_Log:
         self.data_m.clear_data()
         self.data_c0.clear_data()
         self.data_c1.clear_data()
+        self.data_ens.clear_data()
         
     def reset_accuracies(self):
         self.data_m.n_correct = 0
@@ -106,6 +118,9 @@ class Test_Log:
         self.data_c0.n_incorrect = 0
         self.data_c1.n_correct = 0
         self.data_c1.n_incorrect = 0
+        self.data_ens.n_correct = 0
+        self.data_ens.n_incorrect = 0
+
 
 def load_data():
     filtered_train_images = []
