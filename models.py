@@ -41,7 +41,7 @@ class Classifier:
         if inputs.shape[0] == 0 or targets.shape[0] == 0:
             print("No data")
             return
-        self.model.fit(inputs, targets, epochs=3, batch_size=32)
+        self.model.fit(inputs, targets, epochs=1, batch_size=32)
         
         
 

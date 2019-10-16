@@ -63,6 +63,17 @@ class Test_Log:
         self.data_m = Data()
         self.data_c0 = Data()
         self.data_c1 = Data()
+        
+    def log_accuracy(self, name, percentage_correct):
+        if name == "m":
+            self.data_m.n_correct += percentage_correct
+            self.data_m.n_incorrect += (1-percentage_correct)
+        if name == "c0":
+            self.data_c0.n_correct += percentage_correct
+            self.data_c0.n_incorrect += (1-percentage_correct)
+        if name == "c1":
+            self.data_c1.n_correct += percentage_correct
+            self.data_c1.n_incorrect += (1-percentage_correct)
     
     def add_data(self, model, target, d):
         if model == "m":
