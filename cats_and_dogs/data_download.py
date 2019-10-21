@@ -1,21 +1,15 @@
+
 from zipfile import ZipFile
 import os
 import io
 import errno
-from skimage.color import rgb2gray
-from skimage.transform import resize
-from matplotlib import pyplot as plt
 from urllib import request
 
 ZIP_URL = "https://download.microsoft.com/download/3/E/1/3E1C3F21-ECDB-4869-8368-6DEBA77B919F/kagglecatsanddogs_3367a.zip"
 ZIP_PATH = "./dogs-vs-cats.zip"
 DATA_PATH = "./data"
 
-
-FINAL_IMG_SIZE = (80, 80)
-cmap_type = plt.cm.gray
-
-def download_dataset(url=ZIP_URL, zip_dest=ZIP_PATH):
+def download_dataset(url=ZIP_URL, zip_dest=ZIP_PATH, data_path=DATA_PATH):
     if not os.path.exists(zip_dest):
         print(f"Requesting file from {url}")
         response = request.urlopen(url)
@@ -51,34 +45,13 @@ def extract_data(zip_path=ZIP_PATH, dest_path=DATA_PATH):
     os.remove(ZIP_PATH)
     return
 
-def preproc(directory):
-    img_files = os.listdir(directory)
-    for img_file in img_files:
-        if os.path.isfile(os.path.join(directory, img_file)):
-            if img_file.endswith('.jpg'):
-                try:
-
-                    img = plt.imread(os.path.join(directory, img_file))
-                    print(f"Processing file: {os.path.join(directory, img_file)}")
-                    gray_img = rgb2gray(img)
-                    resized_img = resize(gray_img, FINAL_IMG_SIZE)
-                    plt.imsave(os.path.join(directory, img_file), resized_img, cmap=cmap_type)
-                except IOError:
-                    print(f"{img_file} is corrupt. Deleting file.")
-                    os.remove(os.path.join(directory, img_file))
-                    pass
+def check_and_download(zip_url=ZIP_URL, zip_path=ZIP_PATH, data_path=DATA_PATH):
+    if os.path.exists(data_path):
+        # Checking if file size of the data directory is greater than the lowest possible value (64bytes) and if the directory or its subdirectories already contain the images
+        if os.path.getsize(data_path) > 64 & any(fname.endswith('.jpg') for fname in os.listdir(data_path)):
+            print("Images already exist in the directory. Proceeding to preprocessing and modelling stages.")
+            return
+    else:
+        download_dataset(ZIP_URL, ZIP_PATH)
+        extract_data(ZIP_PATH, DATA_PATH)
     return
-
-
-
-if __name__ == "__main__":
-    download_dataset(ZIP_URL, ZIP_PATH)
-    extract_data(ZIP_PATH, DATA_PATH)
-    for directory in os.listdir(DATA_PATH):
-        if os.path.isdir(os.path.join(DATA_PATH, directory)):
-            preproc(os.path.join(DATA_PATH, directory))
-        else:
-            print(f"{directory} is not a directory.")
-            pass
-    print("Preprocessing complete.")
-
