@@ -1,9 +1,11 @@
 import tensorflow as tf
 import random
 import numpy as np
+import os
+import cv2
 
-label_0 = 3
-label_1 = 8
+label_0 = 0
+label_1 = 1
 class Data:         #these are separated in order to later check to make sure the data is balanced
     
     def __init__(self):
@@ -116,7 +118,47 @@ class Test_Log:
         self.data_c0.n_incorrect = 0
         self.data_c1.n_correct = 0
         self.data_c1.n_incorrect = 0
-
+        
+#For loading cats and dogs
+def load_data2():
+    PATH = "./data/PetImagesStandard"
+    
+    cat_images = []
+    for filename in os.listdir(PATH + "/Cat"):
+        if filename.endswith('.jpg'):
+            img = cv2.imread(PATH + "/Cat/" + filename, cv2.IMREAD_GRAYSCALE)
+            cat_images.append(img)
+    cat_labels = [0 for i in range(0, len(cat_images))]
+    
+    dog_images = []
+    for filename in os.listdir(PATH + "/Dog"):
+        if filename.endswith('.jpg'):
+            img = cv2.imread(PATH + "/Dog/" + filename, cv2.IMREAD_GRAYSCALE)
+            dog_images.append(img)
+    dog_labels = [1 for i in range(0, len(dog_images))]
+    
+    images = cat_images + dog_images
+    labels = cat_labels + dog_labels
+    
+    order = [i for i in range(0, len(images))]
+    random.shuffle(order)
+    
+    shuffled_images = []
+    shuffled_labels = []
+    for i in order:
+        shuffled_images.append(images[i])
+        shuffled_labels.append(labels[i])
+        
+    n_train = int(0.8*len(shuffled_images))
+    
+    train_images = shuffled_images[:n_train]
+    test_images = shuffled_images[n_train:]
+    train_labels = shuffled_labels[:n_train]
+    test_labels = shuffled_labels[n_train:]
+    
+    return train_images, train_labels, test_images, test_labels
+        
+#For loading mnist
 def load_data():
     filtered_train_images = []
     filtered_train_labels = []

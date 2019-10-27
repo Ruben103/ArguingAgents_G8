@@ -3,7 +3,7 @@ import numpy as np
 from data_handeling import *
 from models import *
 
-TRAIN_ITER = 4
+TRAIN_ITER = 200
 MAX_ARG_LENGTH = 10
 IMAGE_DIM = (28,28)
 
@@ -50,10 +50,10 @@ class Ensemble:
         if label_chosen == data_target:
             test_args.total_correct_m += 1
             
-        print(f"\t\t Argument for {label_chosen}", f" (Target = {data_target})", f" Dialogue channel: {test_args.dialogue_channel}")
+        #print(f"\t\t Argument for {label_chosen}", f" (Target = {data_target})", f" Dialogue channel: {test_args.dialogue_channel}")
 
         if test_args.last_argument == label_chosen:
-            print("\t\t\tsame argument twice")
+            #print("\t\t\tsame argument twice")
             return (out[0], out[1])
                 
         dialogue_matrix = np.full(IMAGE_DIM, argument_strength)     
@@ -66,14 +66,14 @@ class Ensemble:
                 test_log.log_accuracy(c_name, 1)    #log a correct counter argument
             else:
                 test_log.log_accuracy(c_name, 0)    #log an incorrect counter argument
-            print("\t\t\tno counter argument", f"(Correct decision: {label_chosen == data_target})")
+            #print("\t\t\tno counter argument", f"(Correct decision: {label_chosen == data_target})")
             return (out[0], out[1])
         else:           #counter argument generated
             if label_chosen == data_target:
                 test_log.log_accuracy(c_name, 0)    #log an incorrect counter argument
             else:
                 test_log.log_accuracy(c_name, 1)    #log a correct counter argument
-            print(f"\t\t\targument AGAINST {label_chosen}", f"(Correct decision: {label_chosen != data_target})")
+            #print(f"\t\t\targument AGAINST {label_chosen}", f"(Correct decision: {label_chosen != data_target})")
             
             if c_name == "c0":
                 test_args.dialogue_channel = out_c
@@ -89,7 +89,7 @@ class Ensemble:
         n_wrong = 0
         
         for i in range(0, len(targets)):
-            print("\tStart argument...\n")
+            #print("\tStart argument...\n")
 
             data_point = (inputs[i], targets[i])
             test_args = Test_Arguments(data_point)
@@ -128,14 +128,13 @@ class Ensemble:
         test_log.clear_log()  
 
 def main():
-    (train_in, train_target, test_in, test_target) = load_data()
+    (train_in, train_target, test_in, test_target) = load_data2()
     
-    print("Grab only part of the data")
-    #train_in = train_in[:2000]
-    #train_target = train_target[:2000]
-    test_in = test_in[:100]
-    test_target = test_target[:100]    
-    
+    #print("Grab only part of the data")
+    #train_in = train_in[:200]
+    #train_target = train_target[:200]
+    #test_in = test_in[:1000]
+    #test_target = test_target[:1000]    
     
     print("Normalizing Data")
     train_in = image_normalize(train_in)   #make sure the values are between 0 and 1 (and not 0 and 255)
