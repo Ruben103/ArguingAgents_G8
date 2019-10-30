@@ -3,7 +3,7 @@ import numpy as np
 from data_handeling import *
 from models import *
 
-TRAIN_ITER = 200
+TRAIN_ITER = 20
 MAX_ARG_LENGTH = 10
 IMAGE_DIM = (28,28)
 
@@ -130,11 +130,11 @@ class Ensemble:
 def main():
     (train_in, train_target, test_in, test_target) = load_data2()
     
-    #print("Grab only part of the data")
-    #train_in = train_in[:200]
-    #train_target = train_target[:200]
-    #test_in = test_in[:1000]
-    #test_target = test_target[:1000]    
+    print("Grab only part of the data")
+    train_in = train_in[:200]
+    train_target = train_target[:200]
+    test_in = test_in[:1000]
+    test_target = test_target[:1000]    
     
     print("Normalizing Data")
     train_in = image_normalize(train_in)   #make sure the values are between 0 and 1 (and not 0 and 255)
@@ -159,3 +159,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("10 iterations, model v2")

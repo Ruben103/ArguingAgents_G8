@@ -15,7 +15,7 @@ class Classifier:
         self.m_type = m_type
         
         model = keras.Sequential()
-        model.add(Conv2D(32, (3, 3), activation='relu', input_shape=INPUT_DIM))
+        model.add(Conv2D(16, (3, 3), activation='relu', input_shape=INPUT_DIM))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
         model.add(Dropout(0.25))
         model.add(Flatten())
