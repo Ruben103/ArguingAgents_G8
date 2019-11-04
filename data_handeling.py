@@ -1,9 +1,11 @@
 import tensorflow as tf
 import random
 import numpy as np
+import os
+import cv2
 
-label_0 = 3
-label_1 = 8
+label_0 = 0
+label_1 = 1
 class Data:         #these are separated in order to later check to make sure the data is balanced
     
     def __init__(self):
@@ -13,12 +15,18 @@ class Data:         #these are separated in order to later check to make sure th
         self.n_incorrect = 0
     
     def get_accuracy(self):
+        """
+        Defining the accuracy measurement for the models.
+        """
         if self.n_correct + self.n_incorrect > 0:
             return self.n_correct / (self.n_correct + self.n_incorrect)
         else:
             return None
     
     def get_combined_data(self, m_type):
+        """
+        Combine the data from class cats and class dogs.
+        """
         if m_type == "main":
             combined_data = self.target_0.copy()
             combined_targets = [[1, 0] for i in range(0, len(self.target_0))]
@@ -32,6 +40,9 @@ class Data:         #these are separated in order to later check to make sure th
         return(np.asarray(combined_data), np.asarray(combined_targets))
     
     def balance_data(self):
+        """
+        Balance the number of data points available per class for processing by the model.
+        """
         print("Balancing: ", len(self.target_0), " : ", len(self.target_1))
         if len(self.target_0) == 0 or len(self.target_1) == 0:
             print("Error, cannot balance data")
@@ -63,8 +74,25 @@ class Test_Log:
         self.data_m = Data()
         self.data_c0 = Data()
         self.data_c1 = Data()
+        
+    def log_accuracy(self, name, percentage_correct):
+        """
+        Compute and log the accuracy for a run of the model.
+        """
+        if name == "m":
+            self.data_m.n_correct += percentage_correct
+            self.data_m.n_incorrect += (1-percentage_correct)
+        if name == "c0":
+            self.data_c0.n_correct += percentage_correct
+            self.data_c0.n_incorrect += (1-percentage_correct)
+        if name == "c1":
+            self.data_c1.n_correct += percentage_correct
+            self.data_c1.n_incorrect += (1-percentage_correct)
     
     def add_data(self, model, target, d):
+        """
+        Create a list of datapoints for each of the models. Images are stored in different lists based on target label.
+        """
         if model == "m":
             if target == label_0:
                 self.data_m.target_0.append(d)
@@ -105,8 +133,54 @@ class Test_Log:
         self.data_c0.n_incorrect = 0
         self.data_c1.n_correct = 0
         self.data_c1.n_incorrect = 0
-
+        
+#For loading cats and dogs
+def load_data2():
+    """
+    Load the Asirra CAPTCHA dataset and generate train and test subsets.
+    """
+    PATH = "./data/PetImagesStandard"
+    
+    cat_images = []
+    for filename in os.listdir(PATH + "/Cat"):
+        if filename.endswith('.jpg'):
+            img = cv2.imread(PATH + "/Cat/" + filename, cv2.IMREAD_GRAYSCALE)
+            cat_images.append(img)
+    cat_labels = [0 for i in range(0, len(cat_images))]
+    
+    dog_images = []
+    for filename in os.listdir(PATH + "/Dog"):
+        if filename.endswith('.jpg'):
+            img = cv2.imread(PATH + "/Dog/" + filename, cv2.IMREAD_GRAYSCALE)
+            dog_images.append(img)
+    dog_labels = [1 for i in range(0, len(dog_images))]
+    
+    images = cat_images + dog_images
+    labels = cat_labels + dog_labels
+    
+    order = [i for i in range(0, len(images))]
+    random.shuffle(order)
+    
+    shuffled_images = []
+    shuffled_labels = []
+    for i in order:
+        shuffled_images.append(images[i])
+        shuffled_labels.append(labels[i])
+        
+    n_train = int(0.8*len(shuffled_images))
+    
+    train_images = shuffled_images[:n_train]
+    test_images = shuffled_images[n_train:]
+    train_labels = shuffled_labels[:n_train]
+    test_labels = shuffled_labels[n_train:]
+    
+    return train_images, train_labels, test_images, test_labels
+        
+#For loading mnist
 def load_data():
+    """
+    Load the MNIST dataset and generate train and test subsets.
+    """
     filtered_train_images = []
     filtered_train_labels = []
     filtered_test_images = []
@@ -137,10 +211,12 @@ def load_data():
             filtered_test_labels.append(test_labels[test_idx])
             test_ctr_1 += 1
     print(f"Number of test images:\n {label_0}: {test_ctr_0}\t {label_1}: {test_ctr_1}")
-    # TODO: Add a try catch to check if data is always returned with expected shapes and sizes
     return filtered_train_images, filtered_train_labels, filtered_test_images, filtered_test_labels
     
 def image_normalize(data):
+    """
+    Normalize the image array to contain values between 0 and 1 instead of 0 and 255.
+    """
     for i in range(0, len(data)):
         data[i] = np.true_divide(data[i], 255)
     return data
