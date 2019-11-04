@@ -16,8 +16,10 @@ The program has been implemented in Python3. The program requires the latest ver
 * OpenCV
 * URLLIB
 
-The dataset can be downloaded by running the data_download.py script:
-```python3 data_download.py```
+The dataset can be downloaded from the following link:
+![Cats-vs-Dogs](https://download.microsoft.com/download/3/E/1/3E1C3F21-ECDB-4869-8368-6DEBA77B919F/kagglecatsanddogs_3367a.zip)
+
+Download the dataset (zip file) and extract to ```./data/PetImages```
 
 Command to install the packages:
 ```pip3 install --no-cache-dir tensorflow keras numpy opencv-python```
