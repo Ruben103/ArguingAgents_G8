@@ -13,13 +13,21 @@ The program has been implemented in Python3. The program requires the latest ver
 * Tensorflow (2.0.0)
 * Keras (2.3.0)
 * Numpy
+* OpenCV
+* URLLIB
+
+The dataset can be downloaded by running the data_download.py script:
+```python3 data_download.py```
 
 Command to install the packages:
-```pip3 install --no-cache-dir tensorflow keras numpy```
+```pip3 install --no-cache-dir tensorflow keras numpy opencv-python```
 
-Command to run the program:
+Command to run the ensemble of main and counter argument classifiers:
 
 ```python3 main.py```
+
+Command to run the baseline main classifier:
+```python3 just_main.py```
 
 
 ### References
@@ -31,3 +39,5 @@ Command to run the program:
 * Artur SD’Avila Garcez, Dov M Gabbay, and Luis C Lamb. Value-based argumentation frameworksas neural-symbolic learning systems.Journal of Logic and Computation, 15(6):1041–1058, 2005.
 
 * Yann LeCun, Corinna Cortes, and CJ Burges.  Mnist handwritten digit database.AT&T Labs
+
+* Elson, J., Douceur, J. J., Howell, J., & Saul, J. (2007). Asirra: a CAPTCHA that exploits interest-aligned manual image categorization.
