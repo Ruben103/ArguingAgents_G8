@@ -40,6 +40,8 @@ def extract_data(zip_path=ZIP_PATH, dest_path=DATA_PATH):
     Returns:
         None
     """
+    if not os.path.exists(dest_path):
+        os.mkdir(dest_path)
     # Check if the dogs-vs-cats.zip file is in the current directory
     if not os.path.exists(zip_path):
         raise FileNotFoundError( errno.ENOENT, os.strerror(errno.ENOENT), zip_path)
