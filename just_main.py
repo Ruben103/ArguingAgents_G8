@@ -6,10 +6,16 @@ import cv2
 import keras
 from keras.layers import LeakyReLU, Activation, Dense, Flatten, Conv2D, MaxPooling2D, Dropout
 from keras import optimizers
+from preproc import extract_data
+from standardize import convert_files
+import errno
 
 INPUT_DIM = (28,28,1)
 
 def load_data2():
+    """
+    Load the Asirra CAPTCHA dataset and generate train and test subsets.
+    """
     PATH = "./data/PetImagesStandard"
     
     cat_images = []
@@ -48,11 +54,32 @@ def load_data2():
     return train_images, train_labels, test_images, test_labels
     
 def image_normalize(data):
+    """
+    Normalize the image array to contain values between 0 and 1 instead of 0 and 255.
+    """
     for i in range(0, len(data)):
         data[i] = np.true_divide(data[i], 255)
     return data
     
 def main():
+    extract_data()
+    orig_data = "./data/PetImages"
+    std_data = "./data/PetImagesStandard"
+
+    try: 
+        os.makedirs(std_data)
+        os.makedirs(std_data + "/Cat")
+        os.makedirs(std_data + "/Dog")
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            pass
+
+    print("Converting cats...")
+    convert_files(orig_data + "/Cat", std_data + "/Cat") 
+    print("Converting dogs...")
+    convert_files(orig_data + "/Dog", std_data + "/Dog") 
+
+
     print("Loading Data")
     (train_in, train_target, test_in, test_target) = load_data2()
     

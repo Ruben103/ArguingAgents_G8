@@ -8,6 +8,9 @@ ORIGINAL_PATH = "./data/PetImages"
 NEW_PATH = "./data/PetImagesStandard"
 
 def convert_files(from_folder, to_folder):
+    """
+    Convert the color images into grayscale. Resize images into 28*28 pixel images.
+    """
     for filename in os.listdir(from_folder):
         if filename.endswith('.jpg'):
             img = cv2.imread(from_folder + "/" + filename)
@@ -16,18 +19,18 @@ def convert_files(from_folder, to_folder):
                 final = cv2.resize(gray, dsize=(28, 28), interpolation=cv2.INTER_CUBIC)
                 cv2.imwrite(to_folder + "/" + filename, final)
 
-try: 
-    os.makedirs(NEW_PATH)
-    os.makedirs(NEW_PATH + "/Cat")
-    os.makedirs(NEW_PATH + "/Dog")
-except OSError as e:
-    if e.errno == errno.EEXIST:
-        raise
+# try: 
+#     os.makedirs(NEW_PATH)
+#     os.makedirs(NEW_PATH + "/Cat")
+#     os.makedirs(NEW_PATH + "/Dog")
+# except OSError as e:
+#     if e.errno == errno.EEXIST:
+#         raise
 
-print("Converting cats...")
-convert_files(ORIGINAL_PATH + "/Cat", NEW_PATH + "/Cat") 
-print("Converting dogs...")
-convert_files(ORIGINAL_PATH + "/Dog", NEW_PATH + "/Dog") 
+# print("Converting cats...")
+# convert_files(ORIGINAL_PATH + "/Cat", NEW_PATH + "/Cat") 
+# print("Converting dogs...")
+# convert_files(ORIGINAL_PATH + "/Dog", NEW_PATH + "/Dog") 
     
 
  

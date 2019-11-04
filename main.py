@@ -18,12 +18,17 @@ class Test_Arguments:
         self.total_correct_c1 = 0
 
 class Ensemble:
+    """
+    Defining the ensemble of classifiers.
+    """
     m = Classifier("main")
     c0 = Classifier("counter_0")
     c1 = Classifier("counter_1")
 
     def test_recursive(self, test_args, test_log):
-        
+        """
+        Defines the recursive testing and training strategy for the ensemble.
+        """
         (data_input, data_target) = test_args.data_point
 
         if test_args.argument_length >= MAX_ARG_LENGTH:
@@ -83,6 +88,9 @@ class Ensemble:
             return self.test_recursive(test_args, test_log)
 
     def test(self, inputs, targets, test_log):
+        """
+        Testing the model. Computes the accuracies of the Main classifier, the Counter-Argument generators and the ensemble.
+        """
         print("Let's test!\n")
 
         n_correct = 0
@@ -118,7 +126,9 @@ class Ensemble:
         return test_log
 
     def train(self, test_log):
-        
+        """
+        Defines the training iterations. Uses the data from test_log to train the Main and Counter-Argument classifiers
+        """
         print("Let's train!\n")
         
         self.m.train_model(test_log.data_m)
@@ -129,13 +139,7 @@ class Ensemble:
 
 def main():
     (train_in, train_target, test_in, test_target) = load_data2()
-    
-    #print("Grab only part of the data")
-    #train_in = train_in[:200]
-    #train_target = train_target[:200]
-    #test_in = test_in[:1000]
-    #test_target = test_target[:1000]    
-    
+        
     print("Normalizing Data")
     train_in = image_normalize(train_in)   #make sure the values are between 0 and 1 (and not 0 and 255)
     test_in = image_normalize(test_in)

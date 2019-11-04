@@ -6,9 +6,13 @@ import errno
 ZIP_PATH = "./dogs-vs-cats.zip"
 OP_PATH = "./data"
 def extract_data(zip_path=ZIP_PATH, dest_path=OP_PATH):
+    """
+    Extcract the Asirra CAPTCHA dogs vs cats dataset from the compressed folder.
+    """
     # Check if the dogs-vs-cats.zip file is in the current directory
-    if not os.path.exists(zip_path):
-        raise FileNotFoundError( errno.ENOENT, os.strerror(errno.ENOENT), zip_path)
+    if not (os.path.exists(zip_path)) & (os.path.exists(dest_path)):
+        print(FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), zip_path))
+        return
     else:
         print(f"Found file {zip_path}. Unzipping contents to {dest_path}")
         if not os.path.exists(dest_path):
@@ -30,5 +34,3 @@ def extract_data(zip_path=ZIP_PATH, dest_path=OP_PATH):
                     unzip_sub_dir.extract(sub_dir_file, dest_path)
     return
 
-if __name__ == "__main__":
-    extract_data(ZIP_PATH, OP_PATH)
